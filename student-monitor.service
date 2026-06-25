@@ -1,0 +1,13 @@
+[Unit]
+Description=Service de monitoring systeme
+After=network.target
+
+[Service]
+Type=oneshot
+User=root
+ExecStart=/bin/bash /usr/local/bin/monitor.sh
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

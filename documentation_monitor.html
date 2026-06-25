@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentation - monitor.sh | TP2 Monitoring</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+        :root {
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --primary-dark: #4f46e5;
+            --accent: #06b6d4;
+            --accent-light: #22d3ee;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-code: #0d1117;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: #334155;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --info: #3b82f6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.7;
+            font-size: 15px;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 30%, #4338ca 60%, #6366f1 100%);
+            padding: 60px 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(99,102,241,0.3) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -10%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(6,182,212,0.2) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .header-content {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--accent-light);
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 42px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #fff 0%, #c7d2fe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header .subtitle {
+            font-size: 18px;
+            color: #c7d2fe;
+            font-weight: 300;
+            max-width: 600px;
+        }
+
+        .header-meta {
+            display: flex;
+            gap: 24px;
+            margin-top: 28px;
+            flex-wrap: wrap;
+        }
+
+        .header-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #a5b4fc;
+            background: rgba(255,255,255,0.08);
+            padding: 8px 14px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .header-meta-item .icon {
+            font-size: 16px;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        /* ===== TABLE OF CONTENTS ===== */
+        .toc {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 40px;
+        }
+
+        .toc h2 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--primary-light);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toc ol {
+            list-style: none;
+            counter-reset: toc-counter;
+        }
+
+        .toc ol li {
+            counter-increment: toc-counter;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(51,65,85,0.5);
+        }
+
+        .toc ol li:last-child {
+            border-bottom: none;
+        }
+
+        .toc ol li::before {
+            content: counter(toc-counter, decimal-leading-zero);
+            color: var(--primary-light);
+            font-weight: 700;
+            font-size: 13px;
+            margin-right: 12px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .toc ol li a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 400;
+            transition: color 0.2s;
+        }
+
+        .toc ol li a:hover {
+            color: var(--text-primary);
+        }
+
+        /* ===== SECTIONS ===== */
+        .section {
+            margin-bottom: 48px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 20px;
+            padding-bottom: 14px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .section-number {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+            font-family: 'JetBrains Mono', monospace;
+            flex-shrink: 0;
+        }
+
+        .section h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .section h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-light);
+            margin: 24px 0 12px 0;
+        }
+
+        .section p {
+            color: var(--text-secondary);
+            margin-bottom: 14px;
+        }
+
+        /* ===== CODE BLOCKS ===== */
+        .code-block {
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 16px 0;
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 16px;
+            background: rgba(51,65,85,0.4);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .code-header .filename {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .code-header .lang-badge {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--accent);
+            background: rgba(6,182,212,0.1);
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+
+        pre {
+            padding: 20px;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            line-height: 1.8;
+            color: #e2e8f0;
+        }
+
+        pre .comment { color: #64748b; font-style: italic; }
+        pre .variable { color: #7dd3fc; }
+        pre .string { color: #86efac; }
+        pre .command { color: #c4b5fd; }
+        pre .keyword { color: #f472b6; }
+        pre .flag { color: #fbbf24; }
+
+        /* ===== INFO CARDS ===== */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 16px 0;
+        }
+
+        .card.info {
+            border-left: 4px solid var(--info);
+        }
+
+        .card.success {
+            border-left: 4px solid var(--success);
+        }
+
+        .card.warning {
+            border-left: 4px solid var(--warning);
+        }
+
+        .card.error {
+            border-left: 4px solid var(--error);
+        }
+
+        .card-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card.info .card-title { color: var(--info); }
+        .card.success .card-title { color: var(--success); }
+        .card.warning .card-title { color: var(--warning); }
+        .card.error .card-title { color: var(--error); }
+
+        .card p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 0;
+        }
+
+        /* ===== FILE TABLE ===== */
+        .file-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 16px 0;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .file-table thead {
+            background: rgba(99,102,241,0.15);
+        }
+
+        .file-table th {
+            padding: 14px 18px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--primary-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .file-table td {
+            padding: 14px 18px;
+            border-top: 1px solid var(--border);
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .file-table tbody tr {
+            background: var(--bg-card);
+        }
+
+        .file-table tbody tr:nth-child(even) {
+            background: rgba(30,41,59,0.6);
+        }
+
+        .file-table code {
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(99,102,241,0.12);
+            color: var(--primary-light);
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 12.5px;
+            font-weight: 500;
+        }
+
+        /* ===== FLOW DIAGRAM ===== */
+        .flow {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            margin: 20px 0;
+        }
+
+        .flow-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            position: relative;
+        }
+
+        .flow-line {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex-shrink: 0;
+            width: 40px;
+        }
+
+        .flow-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--primary);
+            border: 3px solid var(--bg-dark);
+            box-shadow: 0 0 0 2px var(--primary);
+            flex-shrink: 0;
+            margin-top: 5px;
+        }
+
+        .flow-connector {
+            width: 2px;
+            height: 40px;
+            background: linear-gradient(to bottom, var(--primary), var(--border));
+        }
+
+        .flow-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px 20px;
+            flex-grow: 1;
+            margin-bottom: 8px;
+        }
+
+        .flow-content h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .flow-content p {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 0;
+        }
+
+        /* ===== INLINE CODE ===== */
+        p code, li code {
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(99,102,241,0.12);
+            color: var(--primary-light);
+            padding: 2px 7px;
+            border-radius: 5px;
+            font-size: 13px;
+        }
+
+        /* ===== LISTS ===== */
+        ul, ol {
+            margin: 10px 0 14px 20px;
+            color: var(--text-secondary);
+        }
+
+        li {
+            margin-bottom: 6px;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            text-align: center;
+            padding: 40px;
+            border-top: 1px solid var(--border);
+            margin-top: 20px;
+        }
+
+        .footer p {
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .footer .brand {
+            color: var(--primary-light);
+            font-weight: 600;
+        }
+
+        /* ===== ARBORESCENCE ===== */
+        .tree {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            line-height: 1.9;
+            color: var(--text-secondary);
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin: 16px 0;
+        }
+
+        .tree .folder { color: var(--accent-light); font-weight: 600; }
+        .tree .file { color: #e2e8f0; }
+        .tree .sym { color: var(--warning); }
+
+        /* ===== PRINT STYLES ===== */
+        @media print {
+            body {
+                background: white;
+                color: #1e293b;
+                font-size: 12px;
+                line-height: 1.5;
+            }
+
+            .header {
+                background: linear-gradient(135deg, #4338ca, #6366f1) !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                padding: 40px 30px;
+            }
+
+            .header h1 {
+                font-size: 32px;
+                color: white;
+                -webkit-text-fill-color: white;
+            }
+
+            .header .subtitle { color: #e0e7ff; }
+            .header-meta-item { color: #c7d2fe; }
+
+            .container { padding: 20px 30px; }
+
+            .section { margin-bottom: 30px; }
+
+            .card, .code-block, .file-table, .tree, .toc, .flow-content {
+                break-inside: avoid;
+            }
+
+            .section-header {
+                break-after: avoid;
+            }
+
+            pre {
+                font-size: 10.5px;
+                white-space: pre-wrap;
+                word-wrap: break-word;
+            }
+
+            .code-block {
+                background: #f8fafc !important;
+                border: 1px solid #e2e8f0;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .card {
+                background: #f8fafc !important;
+                border: 1px solid #e2e8f0;
+            }
+
+            .toc {
+                background: #f8fafc !important;
+                border: 1px solid #e2e8f0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== HEADER ===== -->
+    <div class="header">
+        <div class="header-content">
+            <div class="badge">📋 Documentation Technique</div>
+            <h1>monitor.sh</h1>
+            <p class="subtitle">Script de monitoring système pour l'observation, l'analyse et le rapport automatisé de l'état d'une machine Linux.</p>
+            <div class="header-meta">
+                <div class="header-meta-item">
+                    <span class="icon">📁</span>
+                    <span>TP2 — Monitoring</span>
+                </div>
+                <div class="header-meta-item">
+                    <span class="icon">🐧</span>
+                    <span>Bash Script</span>
+                </div>
+                <div class="header-meta-item">
+                    <span class="icon">📄</span>
+                    <span>135 lignes</span>
+                </div>
+                <div class="header-meta-item">
+                    <span class="icon">👤</span>
+                    <span>Maxia</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <div class="container">
+
+        <!-- TABLE DES MATIÈRES -->
+        <div class="toc">
+            <h2>📑 Table des matières</h2>
+            <ol>
+                <li><a href="#overview">Vue d'ensemble</a></li>
+                <li><a href="#config">Configuration & Variables</a></li>
+                <li><a href="#arborescence">Arborescence des fichiers générés</a></li>
+                <li><a href="#etape1">Étape 1 — Mise en place des dossiers rapports</a></li>
+                <li><a href="#etape2">Étape 2 — Vérification des services</a></li>
+                <li><a href="#etape3">Étape 3 — Lecture des logs (journalctl)</a></li>
+                <li><a href="#etape4">Étape 4 — Observation des processus</a></li>
+                <li><a href="#etape5">Étape 5 — Analyse de app.log</a></li>
+                <li><a href="#etape6">Étape 6 — Analyse de metrics.csv</a></li>
+                <li><a href="#etape7">Étape 7 — Recherche avec find & xargs</a></li>
+                <li><a href="#etape8">Étape 8 — Contrôle final</a></li>
+                <li><a href="#fichiers">Résumé des fichiers générés</a></li>
+                <li><a href="#usage">Utilisation</a></li>
+            </ol>
+        </div>
+
+        <!-- SECTION 1 : VUE D'ENSEMBLE -->
+        <div class="section" id="overview">
+            <div class="section-header">
+                <div class="section-number">1</div>
+                <h2>Vue d'ensemble</h2>
+            </div>
+            <p>
+                Le script <code>monitor.sh</code> est un outil de monitoring système automatisé en Bash. Il effectue une série de vérifications
+                sur une machine Linux et génère un ensemble de rapports dans un dossier horodaté. Chaque exécution produit un nouveau dossier de rapport,
+                permettant un suivi historique de l'état du système.
+            </p>
+
+            <div class="card info">
+                <div class="card-title">ℹ️ Objectif principal</div>
+                <p>
+                    Collecter, analyser et stocker des informations clés sur l'état du système : services actifs, logs d'erreurs,
+                    processus consommateurs de CPU, anomalies dans les fichiers de logs et fichiers sensibles.
+                </p>
+            </div>
+
+            <h3>Flux d'exécution</h3>
+            <div class="flow">
+                <div class="flow-step">
+                    <div class="flow-line"><div class="flow-dot"></div><div class="flow-connector"></div></div>
+                    <div class="flow-content">
+                        <h4>Initialisation</h4>
+                        <p>Affichage du contexte (heure, machine, utilisateur) et création du dossier de rapport.</p>
+                    </div>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-line"><div class="flow-dot"></div><div class="flow-connector"></div></div>
+                    <div class="flow-content">
+                        <h4>Collecte des données</h4>
+                        <p>Vérification des services, lecture des logs journalctl, observation des processus.</p>
+                    </div>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-line"><div class="flow-dot"></div><div class="flow-connector"></div></div>
+                    <div class="flow-content">
+                        <h4>Analyse</h4>
+                        <p>Analyse de app.log et metrics.csv, recherche de fichiers .bak et de secrets.</p>
+                    </div>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-line"><div class="flow-dot"></div></div>
+                    <div class="flow-content">
+                        <h4>Vérification finale</h4>
+                        <p>Contrôle que tous les fichiers attendus ont bien été générés.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 2 : CONFIGURATION -->
+        <div class="section" id="config">
+            <div class="section-header">
+                <div class="section-number">2</div>
+                <h2>Configuration & Variables</h2>
+            </div>
+            <p>Le script utilise plusieurs variables de configuration définies en début de fichier pour déterminer les chemins de travail.</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="filename">monitor.sh — lignes 3 à 13</span>
+                    <span class="lang-badge">Bash</span>
+                </div>
+<pre><span class="comment"># Configuration</span>
+<span class="variable">USER_NAME</span>=<span class="string">${USER:-$(whoami)}</span>
+<span class="variable">BASE_DIR</span>=<span class="string">"/opt/monitoring-lab/$USER_NAME"</span>
+<span class="variable">REPORT_DIR</span>=<span class="string">"$BASE_DIR/reports/run-$(date +%Y%m%d-%H%M%S)"</span>
+<span class="variable">LATEST_LINK</span>=<span class="string">"$BASE_DIR/reports/latest"</span>
+<span class="variable">LOG_DATA_DIR</span>=<span class="string">"/var/log/monitoring-lab/data"</span>
+<span class="variable">TREE_DIR</span>=<span class="string">"/var/log/monitoring-lab/tmp/tree"</span>
+
+<span class="comment"># Variables pour l'affichage du contexte</span>
+<span class="variable">START_TIME</span>=<span class="command">$(date)</span>
+<span class="variable">MACHINE_NAME</span>=<span class="command">$(hostname)</span></pre>
+            </div>
+
+            <table class="file-table">
+                <thead>
+                    <tr>
+                        <th>Variable</th>
+                        <th>Description</th>
+                        <th>Exemple de valeur</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>USER_NAME</code></td>
+                        <td>Nom de l'utilisateur courant</td>
+                        <td><code>maxia</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>BASE_DIR</code></td>
+                        <td>Dossier racine du monitoring pour l'utilisateur</td>
+                        <td><code>/opt/monitoring-lab/maxia</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>REPORT_DIR</code></td>
+                        <td>Dossier du rapport courant (horodaté)</td>
+                        <td><code>.../reports/run-20260625-093000</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>LATEST_LINK</code></td>
+                        <td>Lien symbolique vers le dernier rapport</td>
+                        <td><code>.../reports/latest</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>LOG_DATA_DIR</code></td>
+                        <td>Répertoire des fichiers de données (app.log, metrics.csv)</td>
+                        <td><code>/var/log/monitoring-lab/data</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>TREE_DIR</code></td>
+                        <td>Répertoire cible pour la recherche find/xargs</td>
+                        <td><code>/var/log/monitoring-lab/tmp/tree</code></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="card warning">
+                <div class="card-title">⚠️ Attention — Exécution avec sudo</div>
+                <p>
+                    Si le script est lancé avec <code>sudo</code>, la variable <code>$USER</code> sera <code>root</code>.
+                    Les rapports seront alors créés dans <code>/opt/monitoring-lab/root/</code> au lieu du dossier de l'utilisateur.
+                </p>
+            </div>
+        </div>
+
+        <!-- SECTION 3 : ARBORESCENCE -->
+        <div class="section" id="arborescence">
+            <div class="section-header">
+                <div class="section-number">3</div>
+                <h2>Arborescence des fichiers générés</h2>
+            </div>
+            <p>Voici l'arborescence complète produite par une exécution du script :</p>
+            <div class="tree">
+<span class="folder">/opt/monitoring-lab/&lt;utilisateur&gt;/</span>
+└── <span class="folder">reports/</span>
+    ├── <span class="sym">latest → run-20260625-093000/</span>  <span style="color:#64748b">(lien symbolique)</span>
+    └── <span class="folder">run-20260625-093000/</span>
+        ├── <span class="file">services.txt</span>
+        ├── <span class="file">journald.txt</span>
+        ├── <span class="file">journald_errors.txt</span>
+        ├── <span class="file">top_cpu.txt</span>
+        ├── <span class="file">hogs.txt</span>
+        ├── <span class="file">app_summary.txt</span>
+        ├── <span class="file">app_redacted.log</span>
+        ├── <span class="file">metrics_summary.txt</span>
+        ├── <span class="file">tree_bak.txt</span>
+        └── <span class="file">tree_secret.txt</span>
+            </div>
+        </div>
+
+        <!-- SECTION 4 : ÉTAPE 1 -->
+        <div class="section" id="etape1">
+            <div class="section-header">
+                <div class="section-number">4</div>
+                <h2>Étape 1 — Mise en place des dossiers rapports</h2>
+            </div>
+            <p>Le script commence par créer le dossier de rapport horodaté et un lien symbolique <code>latest</code> qui pointe toujours vers le rapport le plus récent.</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="filename">Création des dossiers</span>
+                    <span class="lang-badge">Bash</span>
+                </div>
+<pre><span class="command">mkdir</span> <span class="flag">-p</span> <span class="string">"$REPORT_DIR"</span>
+<span class="command">ln</span> <span class="flag">-sfn</span> <span class="string">"$REPORT_DIR"</span> <span class="string">"$LATEST_LINK"</span>
+<span class="keyword">cd</span> <span class="string">"$REPORT_DIR"</span> || <span class="keyword">exit</span> 1</pre>
+            </div>
+
+            <table class="file-table">
+                <thead><tr><th>Commande</th><th>Rôle</th></tr></thead>
+                <tbody>
+                    <tr>
+                        <td><code>mkdir -p</code></td>
+                        <td>Crée le dossier (et ses parents) s'il n'existe pas encore</td>
+                    </tr>
+                    <tr>
+                        <td><code>ln -sfn</code></td>
+                        <td>Crée ou met à jour le lien symbolique <code>latest</code> (<code>-s</code> symbolique, <code>-f</code> force, <code>-n</code> no-dereference)</td>
+                    </tr>
+                    <tr>
+                        <td><code>cd ... || exit 1</code></td>
+                        <td>Se déplace dans le dossier de rapport ; quitte avec erreur si impossible</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- SECTION 5 : ÉTAPE 2 -->
+        <div class="section" id="etape2">
+            <div class="section-header">
+                <div class="section-number">5</div>
+                <h2>Étape 2 — Vérification des services</h2>
+            </div>
+            <p>Le script vérifie si trois services systemd sont actifs et écrit le résultat dans <code>services.txt</code>.</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="filename">services.txt — contenu généré</span>
+                    <span class="lang-badge">Fichier de sortie</span>
+                </div>
+<pre>RUN : Wed Jun 25 09:30:00 UTC 2026
+MACHINE : Markhal
+UTILISATEUR COURANT : maxia / root
+
+FAKE-API est {Ok}
+LOG-GENERATOR est {Nok}
+NOISY-WORKERS est {Ok}</pre>
+            </div>
+
+            <table class="file-table">
+                <thead><tr><th>Service vérifié</th><th>Commande</th><th>Résultat</th></tr></thead>
+                <tbody>
+                    <tr><td><code>fake-api</code></td><td><code>systemctl is-active --quiet</code></td><td><code>{Ok}</code> si actif, <code>{Nok}</code> sinon</td></tr>
+                    <tr><td><code>log-generator</code></td><td><code>systemctl is-active --quiet</code></td><td><code>{Ok}</code> si actif, <code>{Nok}</code> sinon</td></tr>
+                    <tr><td><code>noisy-workers</code></td><td><code>systemctl is-active --quiet</code></td><td><code>{Ok}</code> si actif, <code>{Nok}</code> sinon</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- SECTION 6 : ÉTAPE 3 -->
+        <div class="section" id="etape3">
+            <div class="section-header">
+                <div class="section-number">6</div>
+                <h2>Étape 3 — Lecture des logs (journalctl)</h2>
+            </div>
+            <p>Le script extrait les logs récents et les erreurs des services via <code>journalctl</code>. Deux fichiers sont produits :</p>
+
+            <table class="file-table">
+                <thead><tr><th>Fichier</th><th>Contenu</th><th>Commande clé</th></tr></thead>
+                <tbody>
+                    <tr>
+                        <td><code>journald.txt</code></td>
+                        <td>Les 30 dernières lignes de logs de <code>fake-api</code> et <code>log-generator</code></td>
+                        <td><code>journalctl -u &lt;service&gt; -n 30</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>journald_errors.txt</code></td>
+                        <td>Uniquement les erreurs (priorité <code>err</code> à <code>emerg</code>) des deux services</td>
+                        <td><code>journalctl -u ... -p err..emerg</code></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="card info">
+                <div class="card-title">ℹ️ Niveaux de priorité syslog</div>
+                <p>
+                    Le filtre <code>-p err..emerg</code> capture les niveaux : <code>err</code> (3), <code>crit</code> (2),
+                    <code>alert</code> (1) et <code>emerg</code> (0) — c'est-à-dire toutes les erreurs graves.
+                </p>
+            </div>
+        </div>
+
+        <!-- SECTION 7 : ÉTAPE 4 -->
+        <div class="section" id="etape4">
+            <div class="section-header">
+                <div class="section-number">7</div>
+                <h2>Étape 4 — Observation des processus</h2>
+            </div>
+            <p>Le script capture un instantané des processus les plus gourmands en CPU.</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="filename">Commandes exécutées</span>
+                    <span class="lang-badge">Bash</span>
+                </div>
+<pre><span class="comment"># Top 10 des processus par utilisation CPU</span>
+<span class="command">ps</span> <span class="flag">-eo</span> pid,ppid,cmd,%mem,%cpu <span class="flag">--sort=-%cpu</span> | <span class="command">head</span> <span class="flag">-n</span> 11 <span class="string">&gt; top_cpu.txt</span>
+
+<span class="comment"># Recherche spécifique du processus cpu-hog.sh</span>
+<span class="command">ps</span> aux | <span class="command">grep</span> <span class="string">"[c]pu-hog.sh"</span> <span class="string">&gt; hogs.txt</span></pre>
+            </div>
+
+            <table class="file-table">
+                <thead><tr><th>Fichier</th><th>Contenu</th></tr></thead>
+                <tbody>
+                    <tr>
+                        <td><code>top_cpu.txt</code></td>
+                        <td>Les 10 processus les plus gourmands en CPU (PID, PPID, commande, %MEM, %CPU)</td>
+                    </tr>
+                    <tr>
+                        <td><code>hogs.txt</code></td>
+                        <td>Les processus correspondant au script <code>cpu-hog.sh</code> (processus volontairement gourmands)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="card success">
+                <div class="card-title">💡 Astuce — Le grep avec crochets</div>
+                <p>
+                    L'utilisation de <code>[c]pu-hog.sh</code> au lieu de <code>cpu-hog.sh</code> est une astuce classique :
+                    elle empêche <code>grep</code> de se trouver lui-même dans les résultats, car la commande <code>grep "[c]pu-hog.sh"</code>
+                    ne correspond pas au motif recherché.
+                </p>
+            </div>
+        </div>
+
+        <!-- SECTION 8 : ÉTAPE 5 -->
+        <div class="section" id="etape5">
+            <div class="section-header">
+                <div class="section-number">8</div>
+                <h2>Étape 5 — Analyse de app.log</h2>
+            </div>
+            <p>Le script analyse le fichier <code>/var/log/monitoring-lab/data/app.log</code> pour en extraire des statistiques et produire une version nettoyée.</p>
+
+            <h3>Statistiques extraites</h3>
+            <table class="file-table">
+                <thead><tr><th>Métrique</th><th>Commande</th><th>Destination</th></tr></thead>
+                <tbody>
+                    <tr>
+                        <td>Nombre total de lignes</td>
+                        <td><code>wc -l &lt; app.log</code></td>
+                        <td rowspan="4"><code>app_summary.txt</code></td>
+                    </tr>
+                    <tr>
+                        <td>Nombre de lignes ERROR</td>
+                        <td><code>grep -c "ERROR" app.log</code></td>
+                    </tr>
+                    <tr>
+                        <td>Nombre de lignes CRITICAL</td>
+                        <td><code>grep -c "CRITICAL" app.log</code></td>
+                    </tr>
+                    <tr>
+                        <td>Top 5 des hôtes</td>
+                        <td><code>awk '{print $1}' | sort | uniq -c | sort -nr | head -n 5</code></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Rédaction des secrets</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="filename">Masquage des informations sensibles</span>
+                    <span class="lang-badge">Bash</span>
+                </div>
+<pre><span class="command">sed</span> <span class="flag">-E</span> <span class="string">'s/SECRET=[a-zA-Z0-9]+/SECRET=**REDACTED**/g'</span> <span class="string">"$APP_LOG"</span> &gt; <span class="string">app_redacted.log</span></pre>
+            </div>
+
+            <div class="card error">
+                <div class="card-title">🔒 Sécurité — Rédaction automatique</div>
+                <p>
+                    Toutes les occurrences de <code>SECRET=&lt;valeur&gt;</code> dans le fichier de logs sont remplacées par
+                    <code>SECRET=**REDACTED**</code>. Cela permet de partager les logs sans exposer de données sensibles.
+                </p>
+            </div>
+        </div>
+
+        <!-- SECTION 9 : ÉTAPE 6 -->
+        <div class="section" id="etape6">
+            <div class="section-header">
+                <div class="section-number">9</div>
+                <h2>Étape 6 — Analyse de metrics.csv</h2>
+            </div>
+            <p>Le script analyse le fichier CSV de métriques pour identifier les lignes où l'utilisation CPU dépasse 95%.</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="filename">Extraction des anomalies CPU</span>
+                    <span class="lang-badge">Bash</span>
+                </div>
+<pre><span class="comment"># Format CSV supposé : id,host,cpu_pct,...</span>
+<span class="variable">M_HIGH_CPU</span>=$(<span class="command">awk</span> <span class="flag">-F','</span> <span class="string">'$3 >= 95 {print}'</span> <span class="string">"$METRICS_CSV"</span> | <span class="command">wc</span> <span class="flag">-l</span>)
+<span class="variable">M_ANOMALIES</span>=$(<span class="command">awk</span> <span class="flag">-F','</span> <span class="string">'$3 >= 95 {print}'</span> <span class="string">"$METRICS_CSV"</span> | <span class="command">head</span> <span class="flag">-n</span> 5)</pre>
+            </div>
+
+            <p>Le fichier <code>metrics_summary.txt</code> contient :</p>
+            <ul>
+                <li>Le nombre total de lignes dans le CSV</li>
+                <li>Le nombre de lignes où <code>cpu_pct ≥ 95%</code></li>
+                <li>Les 5 premières lignes considérées anormales</li>
+            </ul>
+        </div>
+
+        <!-- SECTION 10 : ÉTAPE 7 -->
+        <div class="section" id="etape7">
+            <div class="section-header">
+                <div class="section-number">10</div>
+                <h2>Étape 7 — Recherche avec find & xargs</h2>
+            </div>
+            <p>Le script explore l'arborescence <code>/var/log/monitoring-lab/tmp/tree</code> pour rechercher des fichiers spécifiques.</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="filename">Commandes find & xargs</span>
+                    <span class="lang-badge">Bash</span>
+                </div>
+<pre><span class="comment"># Trouver tous les fichiers .bak</span>
+<span class="command">find</span> <span class="string">"$TREE_DIR"</span> <span class="flag">-type f -name</span> <span class="string">"*.bak"</span> &gt; <span class="string">tree_bak.txt</span>
+
+<span class="comment"># Trouver les fichiers contenant "SECRET="</span>
+<span class="command">find</span> <span class="string">"$TREE_DIR"</span> <span class="flag">-type f -print0</span> | <span class="command">xargs</span> <span class="flag">-0</span> <span class="command">grep</span> <span class="flag">-l</span> <span class="string">"SECRET="</span> &gt; <span class="string">tree_secret.txt</span></pre>
+            </div>
+
+            <table class="file-table">
+                <thead><tr><th>Fichier</th><th>Contenu</th><th>Détails</th></tr></thead>
+                <tbody>
+                    <tr>
+                        <td><code>tree_bak.txt</code></td>
+                        <td>Liste des fichiers <code>.bak</code></td>
+                        <td>Fichiers de sauvegarde potentiellement obsolètes</td>
+                    </tr>
+                    <tr>
+                        <td><code>tree_secret.txt</code></td>
+                        <td>Liste des fichiers contenant <code>SECRET=</code></td>
+                        <td>Fichiers contenant potentiellement des données sensibles</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="card info">
+                <div class="card-title">ℹ️ Pourquoi -print0 et -0 ?</div>
+                <p>
+                    L'option <code>-print0</code> de <code>find</code> et <code>-0</code> de <code>xargs</code> utilisent le caractère nul
+                    (<code>\0</code>) comme séparateur. Cela garantit un fonctionnement correct même avec des noms de fichiers contenant
+                    des espaces ou des caractères spéciaux.
+                </p>
+            </div>
+        </div>
+
+        <!-- SECTION 11 : ÉTAPE 8 -->
+        <div class="section" id="etape8">
+            <div class="section-header">
+                <div class="section-number">11</div>
+                <h2>Étape 8 — Contrôle final</h2>
+            </div>
+            <p>Le script effectue une vérification finale pour s'assurer que tous les fichiers attendus ont bien été générés.</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="filename">Liste des fichiers vérifiés</span>
+                    <span class="lang-badge">Bash</span>
+                </div>
+<pre><span class="variable">FILES_TO_CHECK</span>=(<span class="string">"services.txt"</span> <span class="string">"journald.txt"</span> <span class="string">"journald_errors.txt"</span>
+    <span class="string">"top_cpu.txt"</span> <span class="string">"hogs.txt"</span> <span class="string">"app_summary.txt"</span>
+    <span class="string">"app_redacted.log"</span> <span class="string">"metrics_summary.txt"</span>
+    <span class="string">"tree_bak.txt"</span> <span class="string">"tree_secret.txt"</span>)</pre>
+            </div>
+
+            <p>Pour chaque fichier manquant, un message d'erreur est affiché. Le résultat final sera :</p>
+            <ul>
+                <li><strong>Tous présents :</strong> <code>Contrôle terminé : Tous les fichiers requis sont présents.</code></li>
+                <li><strong>Fichier(s) manquant(s) :</strong> <code>Contrôle terminé : Il manque X fichier(s).</code></li>
+            </ul>
+
+            <div class="card warning">
+                <div class="card-title">⚠️ Note importante</div>
+                <p>
+                    Certains fichiers (comme <code>app_summary.txt</code>, <code>metrics_summary.txt</code>, <code>tree_bak.txt</code>, <code>tree_secret.txt</code>)
+                    ne sont générés que si les fichiers/dossiers sources existent (<code>app.log</code>, <code>metrics.csv</code>, <code>tree/</code>).
+                    Le contrôle final signalera ces fichiers comme manquants si les sources n'étaient pas présentes.
+                </p>
+            </div>
+        </div>
+
+        <!-- SECTION 12 : RÉSUMÉ FICHIERS -->
+        <div class="section" id="fichiers">
+            <div class="section-header">
+                <div class="section-number">12</div>
+                <h2>Résumé des fichiers générés</h2>
+            </div>
+
+            <table class="file-table">
+                <thead>
+                    <tr>
+                        <th>Fichier</th>
+                        <th>Étape</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>services.txt</code></td>
+                        <td>2</td>
+                        <td>Statut des services systemd (fake-api, log-generator, noisy-workers)</td>
+                    </tr>
+                    <tr>
+                        <td><code>journald.txt</code></td>
+                        <td>3</td>
+                        <td>30 dernières lignes de logs des services</td>
+                    </tr>
+                    <tr>
+                        <td><code>journald_errors.txt</code></td>
+                        <td>3</td>
+                        <td>Logs d'erreurs graves uniquement (err → emerg)</td>
+                    </tr>
+                    <tr>
+                        <td><code>top_cpu.txt</code></td>
+                        <td>4</td>
+                        <td>Top 10 des processus par consommation CPU</td>
+                    </tr>
+                    <tr>
+                        <td><code>hogs.txt</code></td>
+                        <td>4</td>
+                        <td>Processus cpu-hog.sh détectés</td>
+                    </tr>
+                    <tr>
+                        <td><code>app_summary.txt</code></td>
+                        <td>5</td>
+                        <td>Résumé statistique de app.log (erreurs, critiques, top hôtes)</td>
+                    </tr>
+                    <tr>
+                        <td><code>app_redacted.log</code></td>
+                        <td>5</td>
+                        <td>Copie de app.log avec les secrets masqués</td>
+                    </tr>
+                    <tr>
+                        <td><code>metrics_summary.txt</code></td>
+                        <td>6</td>
+                        <td>Résumé de metrics.csv (anomalies CPU ≥ 95%)</td>
+                    </tr>
+                    <tr>
+                        <td><code>tree_bak.txt</code></td>
+                        <td>7</td>
+                        <td>Liste des fichiers .bak trouvés</td>
+                    </tr>
+                    <tr>
+                        <td><code>tree_secret.txt</code></td>
+                        <td>7</td>
+                        <td>Liste des fichiers contenant SECRET=</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- SECTION 13 : UTILISATION -->
+        <div class="section" id="usage">
+            <div class="section-header">
+                <div class="section-number">13</div>
+                <h2>Utilisation</h2>
+            </div>
+
+            <h3>Lancer le script</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="filename">Terminal Linux</span>
+                    <span class="lang-badge">Shell</span>
+                </div>
+<pre><span class="comment"># Rendre le script exécutable (une seule fois)</span>
+<span class="command">chmod</span> <span class="flag">+x</span> monitor.sh
+
+<span class="comment"># Exécuter le script</span>
+<span class="command">sudo</span> ./monitor.sh</pre>
+            </div>
+
+            <h3>Consulter les résultats</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="filename">Accéder au dernier rapport</span>
+                    <span class="lang-badge">Shell</span>
+                </div>
+<pre><span class="comment"># Via le lien symbolique "latest"</span>
+<span class="keyword">cd</span> /opt/monitoring-lab/<span class="variable">$USER</span>/reports/latest
+<span class="command">ls</span> <span class="flag">-la</span>
+
+<span class="comment"># Lire un fichier spécifique</span>
+<span class="command">cat</span> services.txt
+<span class="command">cat</span> app_summary.txt</pre>
+            </div>
+
+            <h3>Exécution automatique via systemd</h3>
+            
+            <h4 style="font-size: 16px; font-weight: 600; color: var(--text-primary); margin: 20px 0 10px 0;">1. Installation de base (lancement manuel via service)</h4>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="filename">Installation du service</span>
+                    <span class="lang-badge">Shell</span>
+                </div>
+<pre><span class="comment"># Copier le script dans les binaires système</span>
+<span class="command">sudo</span> cp monitor.sh /usr/local/bin/monitor.sh
+
+<span class="comment"># Copier le fichier service</span>
+<span class="command">sudo</span> cp student-monitor.service /etc/systemd/system/
+
+<span class="comment"># Recharger systemd et tester le lancement</span>
+<span class="command">sudo</span> systemctl daemon-reload
+<span class="command">sudo</span> systemctl start student-monitor.service</pre>
+            </div>
+
+            <h4 style="font-size: 16px; font-weight: 600; color: var(--text-primary); margin: 20px 0 10px 0;">2. Automatisation périodique (Le Timer)</h4>
+            <p>
+                Par défaut, le service est de type <code>oneshot</code> (il s'exécute une fois et s'arrête). 
+                Pour qu'il se lance <strong>automatiquement toutes les heures</strong>, il faut créer un Timer.
+            </p>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="filename">Créer /etc/systemd/system/student-monitor.timer</span>
+                    <span class="lang-badge">INI</span>
+                </div>
+<pre><span class="keyword">[Unit]</span>
+Description=Lancer le script de monitoring etudiant toutes les heures
+
+<span class="keyword">[Timer]</span>
+<span class="variable">OnCalendar</span>=hourly
+<span class="variable">Persistent</span>=true
+
+<span class="keyword">[Install]</span>
+<span class="variable">WantedBy</span>=timers.target</pre>
+            </div>
+            
+            <p>Ensuite, activez le chronomètre définitivement :</p>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="filename">Activer le Timer</span>
+                    <span class="lang-badge">Shell</span>
+                </div>
+<pre><span class="command">sudo</span> systemctl daemon-reload
+<span class="command">sudo</span> systemctl enable <span class="flag">--now</span> student-monitor.timer</pre>
+            </div>
+
+            <h4 style="font-size: 16px; font-weight: 600; color: var(--text-primary); margin: 20px 0 10px 0;">3. Alternative : Automatisation simple avec Cron</h4>
+            <p>
+                Si vous préférez ne pas utiliser Systemd, vous pouvez utiliser l'outil classique <code>cron</code>.
+            </p>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="filename">Éditer la table Cron</span>
+                    <span class="lang-badge">Shell</span>
+                </div>
+<pre><span class="command">sudo</span> crontab <span class="flag">-e</span>
+
+<span class="comment"># Ajouter cette ligne à la fin pour une exécution toutes les heures :</span>
+0 * * * * /opt/monitoring-lab/maxia/monitor.sh</pre>
+            </div>
+
+
+            <h4 style="font-size: 16px; font-weight: 600; color: var(--text-primary); margin: 20px 0 10px 0;">4. Mise à jour du script</h4>
+            <p>
+                Pour récupérer la version la plus récente du script depuis le dépôt officiel :
+            </p>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="filename">Mise à jour Git</span>
+                    <span class="lang-badge">Shell</span>
+                </div>
+<pre><span class="command">git</span> pull origin main</pre>
+            </div>
+            
+            <p style="margin-top: 15px;">
+                <strong>Automatiser les mises à jour (via Cron) :</strong><br>
+                Il est possible de configurer `cron` pour télécharger les dernières mises à jour de manière transparente (ex: tous les jours à 2h00).
+            </p>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="filename">Planifier la mise à jour (crontab -e)</span>
+                    <span class="lang-badge">Shell</span>
+                </div>
+<pre><span class="comment"># Ajouter cette ligne à la fin du fichier crontab :</span>
+0 2 * * * cd /chemin/vers/linux_monitoring_project &amp;&amp; <span class="command">git</span> pull origin main</pre>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="footer">
+            <p>
+                Documentation générée pour le <span class="brand">TP2 — Monitoring</span><br>
+                Script <code>monitor.sh</code> • Bash • Linux
+            </p>
+        </div>
+
+    </div>
+
+</body>
+</html>
